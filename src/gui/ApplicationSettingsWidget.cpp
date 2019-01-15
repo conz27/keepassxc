@@ -78,8 +78,8 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
     connect(this, SIGNAL(rejected()), SLOT(reject()));
 
     connect(
-        m_generalUi->autoSaveAfterEveryChangeCheckBox, SIGNAL(toggled(bool)), this, SLOT(enableAutoSaveOnExit(bool)));
-    connect(m_generalUi->systrayShowCheckBox, SIGNAL(toggled(bool)), this, SLOT(enableSystray(bool)));
+        m_generalUi->autoSaveAfterEveryChangeCheckBox, SIGNAL(toggled(bool)), this, SLOT(autoSaveToggled(bool)));
+    connect(m_generalUi->systrayShowCheckBox, SIGNAL(toggled(bool)), this, SLOT(systrayToggled(bool)));
 
     connect(
         m_secUi->clearClipboardCheckBox, SIGNAL(toggled(bool)), m_secUi->clearClipboardSpinBox, SLOT(setEnabled(bool)));
@@ -290,12 +290,16 @@ void ApplicationSettingsWidget::reject()
     }
 }
 
-void ApplicationSettingsWidget::enableAutoSaveOnExit(bool checked)
+void ApplicationSettingsWidget::autoSaveToggled(bool checked)
 {
+    // Explicitly enable auto-save on exit if it wasn't already
+    if (checked && !m_generalUi->autoSaveOnExitCheckBox->isChecked()) {
+        m_generalUi->autoSaveOnExitCheckBox->setChecked(true);
+    }
     m_generalUi->autoSaveOnExitCheckBox->setEnabled(!checked);
 }
 
-void ApplicationSettingsWidget::enableSystray(bool checked)
+void ApplicationSettingsWidget::systrayToggled(bool checked)
 {
     m_generalUi->systrayDarkIconCheckBox->setEnabled(checked);
     m_generalUi->systrayMinimizeToTrayCheckBox->setEnabled(checked);

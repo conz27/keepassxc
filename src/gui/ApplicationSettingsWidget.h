@@ -53,8 +53,8 @@ public:
 private slots:
     void saveSettings();
     void reject();
-    void enableAutoSaveOnExit(bool checked);
-    void enableSystray(bool checked);
+    void autoSaveToggled(bool checked);
+    void systrayToggled(bool checked);
 
 private:
     QWidget* const m_secWidget;
