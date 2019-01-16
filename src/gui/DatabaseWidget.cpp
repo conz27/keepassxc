@@ -185,6 +185,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     m_fileWatchTimer.setSingleShot(true);
     m_fileWatchUnblockTimer.setSingleShot(true);
     m_ignoreAutoReload = false;
+    m_blockAutoSave = false;
 
     m_EntrySearcher = new EntrySearcher(false);
     m_searchLimitGroup = config()->get("SearchLimitGroup", false).toBool();
@@ -814,10 +815,10 @@ void DatabaseWidget::switchToGroupEdit(Group* group, bool create)
 void DatabaseWidget::connectDatabaseSignals()
 {
     // relayed Database events
-    connect(m_db.data(), SIGNAL(filePathChanged(QString,QString)),
-            this, SIGNAL(databaseFilePathChanged(QString,QString)));
-    connect(m_db.data(), SIGNAL(databaseModified()), this, SIGNAL(databaseModified()));
-    connect(m_db.data(), SIGNAL(databaseSaved()), this, SIGNAL(databaseSaved()));
+    connect(m_db.data(), SIGNAL(filePathChanged(QString,QString)), SIGNAL(databaseFilePathChanged(QString,QString)));
+    connect(m_db.data(), SIGNAL(databaseModified()), SIGNAL(databaseModified()));
+    connect(m_db.data(), SIGNAL(databaseModified()), SLOT(onDatabaseModified()));
+    connect(m_db.data(), SIGNAL(databaseSaved()), SIGNAL(databaseSaved()));
 }
 
 void DatabaseWidget::loadDatabase(bool accepted)
@@ -1109,6 +1110,15 @@ void DatabaseWidget::onGroupChanged(Group* group)
     m_previewView->setGroup(group);
 }
 
+void DatabaseWidget::onDatabaseModified()
+{
+    if (!m_blockAutoSave && config()->get("AutoSaveAfterEveryChange").toBool()) {
+        save();
+    }
+
+    m_blockAutoSave = false;
+}
+
 QString DatabaseWidget::getCurrentSearch()
 {
     return m_lastSearchText;
@@ -1292,8 +1302,10 @@ void DatabaseWidget::onWatchedFileChanged()
     if (m_ignoreAutoReload) {
         return;
     }
-    if (m_fileWatchTimer.isActive())
+
+    if (m_fileWatchTimer.isActive()) {
         return;
+    }
 
     m_fileWatchTimer.start(500);
 }
@@ -1303,6 +1315,8 @@ void DatabaseWidget::reloadDatabaseFile()
     if (!m_db || isLocked()) {
         return;
     }
+
+    m_blockAutoSave = true;
 
     if (!config()->get("AutoReloadOnChange").toBool()) {
         // Ask if we want to reload the db
