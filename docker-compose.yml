@@ -1,0 +1,34 @@
+version: "3.4"
+services:
+  keepassxc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: keepassxc
+    command: |
+        bash -c
+        '
+        cd /keepassxc/src
+        cmake -H. -Bbuild
+        make -Cbuild all -j8
+        '
+        # TODO: remove -j8
+    volumes:
+      - "${PWD}:/keepassxc/src/"
+
+  keepassxc-sgx:
+    build:
+      context: .
+      dockerfile: sgx/Dockerfile
+    image: keepassxc-sgx
+    command: |
+        bash -c
+        '
+        cd /keepassxc/src
+        cmake -H. -Bbuild -DWITH_SGX=ON
+        make -Cbuild all -j8
+        '
+        # TODO: remove -j8
+    volumes:
+      - "${PWD}:/keepassxc/src/"
+

@@ -71,6 +71,7 @@ RUN set -x \
     && echo "/opt/${QT5_VERSION}/lib" > /etc/ld.so.conf.d/${QT5_VERSION}.conf \
     && echo "/opt/keepassxc-libs/lib/x86_64-linux-gnu" > /etc/ld.so.conf.d/keepassxc.conf
 
+# Install SGX SDK
 ARG SGX_SDK_INSTALL_DIR="/opt/intel/sgxsdk"
 ARG SGX_SDK_VERSION="2.4"
 ARG SGX_SDK_BIN="sgx_linux_x64_sdk_2.4.100.48163.bin"
@@ -80,6 +81,8 @@ RUN set -x \
     && chmod +x ${SGX_SDK_BIN} \
     && mkdir -p $(dirname ${SGX_SDK_INSTALL_DIR}) \
     && ./${SGX_SDK_BIN} --prefix=$(dirname ${SGX_SDK_INSTALL_DIR}) \
+    && mkdir -p ${SGX_SDK_INSTALL_DIR}/share/ \
+    && ln -s ${SGX_SDK_INSTALL_DIR}/pkgconfig ${SGX_SDK_INSTALL_DIR}/share/pkgconfig \
     && rm -rf ${SGX_SDK_BIN}
 
 ENV PATH="/opt/${QT5_VERSION}/bin:${SGX_SDK_INSTALL_DIR}/bin:${PATH}"
@@ -96,6 +99,13 @@ RUN set -x \
     && chmod +x /usr/bin/linuxdeploy \
     && chmod +x /usr/bin/linuxdeploy-plugin-qt \
     && chmod +x /usr/bin/appimagetool
+
+# additional dependencies
+RUN set -x \
+    && apt-get update -y \
+    && apt-get install -y \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 VOLUME /keepassxc/src
 VOLUME /keepassxc/out

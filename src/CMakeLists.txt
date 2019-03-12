@@ -64,6 +64,7 @@ set(keepassx_SOURCES
         crypto/Random.cpp
         crypto/SymmetricCipher.cpp
         crypto/SymmetricCipherGcrypt.cpp
+        crypto/SymmetricCipherSGX.cpp
         crypto/kdf/Kdf.cpp
         crypto/kdf/AesKdf.cpp
         crypto/kdf/Argon2Kdf.cpp

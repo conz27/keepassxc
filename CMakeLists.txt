@@ -39,6 +39,7 @@ option(WITH_DEV_BUILD "Use only for development. Disables/warns about deprecated
 option(WITH_ASAN "Enable address sanitizer checks (Linux / macOS only)" OFF)
 option(WITH_COVERAGE "Use to build with coverage tests (GCC only)." OFF)
 option(WITH_APP_BUNDLE "Enable Application Bundle for macOS" ON)
+option(WITH_SGX "Enable SGX support" OFF)
 
 set(WITH_XC_ALL OFF CACHE BOOLEAN "Build in all available plugins")
 
@@ -394,6 +395,11 @@ if(WITH_XC_YUBIKEY)
     find_package(YubiKey REQUIRED)
 
     include_directories(SYSTEM ${YUBIKEY_INCLUDE_DIRS})
+endif()
+
+# Optional
+if(WITH_SGX)
+    include(FindSGX)
 endif()
 
 if(UNIX)
