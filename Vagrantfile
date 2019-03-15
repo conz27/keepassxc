@@ -103,6 +103,17 @@ Vagrant.configure("2") do |config|
       echo "/opt/${QT5_VERSION}/lib" > /etc/ld.so.conf.d/${QT5_VERSION}.conf
       echo "/opt/keepassxc-libs/lib/x86_64-linux-gnu" > /etc/ld.so.conf.d/keepassxc.conf
 
+      export SGX_SDK_INSTALL_DIR="/opt/intel/sgxsdk"
+      export SGX_SDK_VERSION="2.4"
+      export SGX_SDK_BIN="sgx_linux_x64_sdk_2.4.100.48163.bin"
+
+      curl -SLO "https://download.01.org/intel-sgx/linux-${SGX_SDK_VERSION}/ubuntu18.04-server/${SGX_SDK_BIN}"
+      chmod +x ${SGX_SDK_BIN}
+      mkdir -p $(dirname ${SGX_SDK_INSTALL_DIR})
+      ./${SGX_SDK_BIN} --prefix=$(dirname ${SGX_SDK_INSTALL_DIR})
+      mkdir -p ${SGX_SDK_INSTALL_DIR}/share/ \
+      ln -s ${SGX_SDK_INSTALL_DIR}/pkgconfig ${SGX_SDK_INSTALL_DIR}/share/pkgconfig
+
       curl -L "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage" > /usr/bin/linuxdeploy
       curl -L "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage" > /usr/bin/linuxdeploy-plugin-qt
       curl -L "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" > /usr/bin/appimagetool
